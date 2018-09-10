@@ -9,13 +9,13 @@ from util import get_feature, get_feature_hist
 
 ESHOSTS=cycle(['http://127.0.0.1:9200'])
 
-def images(es_index, es_type, es_id):
-    req = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/search0000/_aknn_search?k1=500&k2=10')
+def search_images(es_index, es_type, es_id='search0000'):
+    req = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/{es_id}/_aknn_search?k1=500&k2=10')
     hits = req.json()["hits"]["hits"]
     took_ms = req.json()["took"]
     query_img, neighbor_imgs = hits[0], hits[1:]
 
-    res = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/search0000')
+    res = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/{es_id}')
     print(res.text)
 
     print(took_ms, query_img, neighbor_imgs)
@@ -62,8 +62,7 @@ if __name__ == '__main__':
     post_url = f"{host}/_aknn_index"
     res = requests.post(post_url, json=body)
     print(res.text)
-    images('images', 'image', 'random')
+    search_images('images', 'image', search_id)
     res = requests.delete(f'{host}/{index_name}/{doc_type}/{search_id}')
     print(res.text)
-
 

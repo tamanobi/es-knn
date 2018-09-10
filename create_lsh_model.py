@@ -4,18 +4,9 @@ from argparse import ArgumentParser
 from sys import stderr
 from time import time
 import json
-import os
 import random
 import requests
-import gzip
-
-def iter_docs(src):
-    iter_ = os.scandir(src)
-
-    for i, fobj in enumerate(iter_):
-        with gzip.open(fobj.path) as fp:
-            yield json.loads(fp.read().decode())
-
+from util import iter_docs
 
 if __name__ == "__main__":
     ap = ArgumentParser(description="See script")

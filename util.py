@@ -5,6 +5,16 @@ import numpy
 import imagehash
 from skimage import io, img_as_float
 from skimage.exposure import histogram
+import gzip
+import json
+import os
+
+def iter_docs(src):
+    iter_ = os.scandir(src)
+
+    for i, fobj in enumerate(iter_):
+        with gzip.open(fobj.path) as fp:
+            yield json.loads(fp.read().decode())
 
 def bool_to_float(v):
     if v is True:

@@ -10,15 +10,8 @@ import os
 import random
 import requests
 import sys
-import gzip
+from util import iter_docs
 
-
-def iter_docs(src):
-    iter_ = os.scandir(src)
-
-    for i, fobj in enumerate(iter_):
-        with gzip.open(fobj.path) as fp:
-            yield json.loads(fp.read().decode())
 
 
 if __name__ == "__main__":
