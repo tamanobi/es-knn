@@ -1,5 +1,4 @@
-"""Populate Elasticsearch-aknn documents from feature docs on disk or S3.
-"""
+#coding:utf-8
 
 from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor, as_completed

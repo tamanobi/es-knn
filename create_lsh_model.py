@@ -1,7 +1,4 @@
 #coding: utf-8
-"""
-Create an Elasticsearch-Aknn model from feature documents stored on disk or S3.
-"""
 
 from argparse import ArgumentParser
 from sys import stderr
