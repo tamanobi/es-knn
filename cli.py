@@ -1,12 +1,11 @@
 #coding:utf-8
 
-import numpy
 from pathlib import Path
 from PIL import Image
 from argparse import ArgumentParser
-import imagehash
 from itertools import cycle
 import requests
+from util import get_feature
 
 ESHOSTS=cycle(['http://127.0.0.1:9200'])
 
@@ -32,16 +31,6 @@ def get_args():
     ap.add_argument("-k2", type=int, default=10,
                     help="k2")
     return vars(ap.parse_args())
-
-def bool_to_float(v):
-    if v is True:
-        return 1.0
-    else:
-        return 0.0
-
-def get_feature(img:Image) -> numpy.ndarray:
-    h = imagehash.phash(img)
-    return numpy.vectorize(bool_to_float)(h.hash.flatten())
 
 if __name__ == '__main__':
     args = get_args()

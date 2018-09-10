@@ -4,16 +4,9 @@ from argparse import ArgumentParser
 from pathlib import Path
 from tqdm import tqdm
 import os
-import imagehash
 from PIL import Image
-import numpy
 import json
-
-def bool_to_float(v):
-    if v is True:
-        return 1.0
-    else:
-        return 0.0
+from util import get_feature
 
 def get_image_path(image_dir:Path) -> list:
     image_paths = []
@@ -21,10 +14,6 @@ def get_image_path(image_dir:Path) -> list:
         if p.suffix in ['.jpg', '.png', '.jpeg']:
             image_paths.append(p)
     return image_paths
-
-def get_feature(img:Image) -> numpy.ndarray:
-    h = imagehash.phash(img)
-    return numpy.vectorize(bool_to_float)(h.hash.flatten())
 
 if __name__ == '__main__':
     image_dir = os.getenv('IMAGE_DIR', './images')
@@ -46,7 +35,7 @@ if __name__ == '__main__':
     features = []
     for i, image_path in enumerate(tqdm(image_paths, desc='extracting')):
         binary_array = get_feature(Image.open(str(image_path)))
-        features.append({'id':str(i, 'path':str(image_path), 'feature_vector':binary_array.tolist()})
+        features.append({'id':str(i), 'path':str(image_path), 'feature_vector':binary_array.tolist()})
 
     for i, feature in enumerate(tqdm(features, desc='writing')):
         fname = f'features-{i:08}.json'
