@@ -5,7 +5,7 @@ from PIL import Image
 from argparse import ArgumentParser
 from itertools import cycle
 import requests
-from util import get_feature
+from util import get_feature, get_feature_hist
 
 ESHOSTS=cycle(['http://127.0.0.1:9200'])
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     input_image_path = Path(args['input_image_path'])
     img = Image.open(str(input_image_path))
     print(input_image_path)
-    feature = get_feature(img)
+    feature = get_feature_hist(img)
 
     search_id = 'search0000'
     aknn_doc = {

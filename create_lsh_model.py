@@ -7,20 +7,21 @@ import json
 import os
 import random
 import requests
+import gzip
 
 def iter_docs(src):
     iter_ = os.scandir(src)
 
     for i, fobj in enumerate(iter_):
-        with open(fobj.path) as fp:
-            yield json.loads(fp.read())
+        with gzip.open(fobj.path) as fp:
+            yield json.loads(fp.read().decode())
 
 
 if __name__ == "__main__":
     ap = ArgumentParser(description="See script")
     ap.add_argument("--es_host", default="http://127.0.0.1:9200",
                     help="URL of single elasticsearch server.")
-    ap.add_argument("--aknn_tables", type=int, default=32)
+    ap.add_argument("--aknn_tables", type=int, default=48)
     ap.add_argument("--aknn_bits", type=int, default=4)
     ap.add_argument("--aknn_dimensions", type=int, default=64)
     ap.add_argument("-p", type=float, default=0.2,

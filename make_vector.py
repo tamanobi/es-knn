@@ -6,7 +6,8 @@ from tqdm import tqdm
 import os
 from PIL import Image
 import json
-from util import get_feature
+import gzip
+from util import get_feature, get_feature_hist
 
 def get_image_path(image_dir:Path) -> list:
     image_paths = []
@@ -34,10 +35,14 @@ if __name__ == '__main__':
     image_paths = get_image_path(image_dir)
     features = []
     for i, image_path in enumerate(tqdm(image_paths, desc='extracting')):
-        binary_array = get_feature(Image.open(str(image_path)))
+        img = Image.open(str(image_path))
+        img = img.convert('RGB')
+        binary_array = get_feature_hist(img)
+        if len(binary_array) != 64:
+            print(f'  {image_path}')
         features.append({'id':str(i), 'path':str(image_path), 'feature_vector':binary_array.tolist()})
 
     for i, feature in enumerate(tqdm(features, desc='writing')):
         fname = f'features-{i:08}.json'
-        with open(str(output_dir / fname), 'w') as f:
-            json.dump(feature, f)
+        with gzip.open(str(output_dir / fname), 'wb') as f:
+            f.write(json.dumps(feature).encode())
