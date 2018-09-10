@@ -4,7 +4,6 @@ Create an Elasticsearch-Aknn model from feature documents stored on disk or S3.
 """
 
 from argparse import ArgumentParser
-#from numpy import mean, std
 from sys import stderr
 from time import time
 import json
@@ -12,15 +11,21 @@ import os
 import random
 import requests
 
+def iter_docs(src):
+    iter_ = os.scandir(src)
+
+    for i, fobj in enumerate(iter_):
+        with open(fobj.path) as fp:
+            yield json.loads(fp.read())
+
 
 if __name__ == "__main__":
-
     ap = ArgumentParser(description="See script")
     ap.add_argument("--es_host", default="http://127.0.0.1:9200",
                     help="URL of single elasticsearch server.")
-    ap.add_argument("--aknn_tables", type=int, default=2)
-    ap.add_argument("--aknn_bits", type=int, default=2)
-    ap.add_argument("--aknn_dimensions", type=int, default=4)
+    ap.add_argument("--aknn_tables", type=int, default=32)
+    ap.add_argument("--aknn_bits", type=int, default=4)
+    ap.add_argument("--aknn_dimensions", type=int, default=64)
     ap.add_argument("-p", type=float, default=0.2,
                     help="Prob. of accepting a feature document as a sample.")
     args = vars(ap.parse_args())
@@ -55,7 +60,7 @@ if __name__ == "__main__":
     body = {
         "_index": "aknn_models",
         "_type": "aknn_model",
-        "_id": "twitter_images",
+        "_id": "images",
         "_source": {
             "_aknn_description": "AKNN model for images on the twitter public stream",
             "_aknn_nb_dimensions": args["aknn_dimensions"],
@@ -84,27 +89,22 @@ if __name__ == "__main__":
     assert req.status_code == 200, "Failed to create mapping: %s" % json.dumps(req.json())
 
     # Create an iterable over the feature documents.
-    #docs = iter_docs(args["features_source"])
+    docs = iter_docs('./features')
 
     # Populate the vector sample by randomly sampling vectors from iterable.
     nb_samples = 2 * args["aknn_bits"] * args["aknn_tables"]
     #print("Sampling %d feature vectors from %s" % (nb_samples, args["features_source"]))
     while len(body["_aknn_vector_sample"]) < nb_samples:
-        # vec = next(docs)["feature_vector"]
-        vec = {"id":"1", "img_pointer":4, "imagenet_labels":"dog", "feature_vector":[0,0,1,1]}
+        vec = next(docs)["feature_vector"]
+        #vec = {"id":"1", "img_pointer":4, "imagenet_labels":"dog", "feature_vector":[0,0,1,1]}
         body["_aknn_vector_sample"].append(vec)
-
-#    print("Sample mean, std = %.3lf, %.3lf" % (
-#        mean(body["_aknn_vector_sample"]),
-#        std(body["_aknn_vector_sample"])))
 
     print("Posting to Elasticsearch")
     t0 = time()
     print("%s/_aknn_create" % args["es_host"])
-    res = requests.put("%s/_aknn_create" % args["es_host"], json=body)
+    res = requests.post("%s/_aknn_create" % args["es_host"], json=body)
     if res.status_code == requests.codes.ok:
         print("Successfully built model in %d seconds" % (time() - t0))
-        #print(pformat(res.json()))
     else:
         print("Failed with error code %d" % res.status_code, file=stderr)
         print(res.text)
