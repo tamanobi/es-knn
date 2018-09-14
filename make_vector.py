@@ -7,13 +7,14 @@ import os
 from PIL import Image
 import json
 import gzip
-from util import get_feature, get_feature_hist
+from util import get_feature
 
 def get_image_path(image_dir:Path) -> list:
     image_paths = []
     for p in tqdm(image_dir.glob('**/*'), desc='image_paths'):
         if p.suffix in ['.jpg', '.png', '.jpeg']:
-            image_paths.append(p)
+            if str(p.parent.stem).startswith('20180907') is True:
+                image_paths.append(p)
     return image_paths
 
 if __name__ == '__main__':
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     for i, image_path in enumerate(tqdm(image_paths, desc='extracting')):
         img = Image.open(str(image_path))
         img = img.convert('RGB')
-        binary_array = get_feature_hist(img)
+        binary_array = get_feature(img)
         if len(binary_array) != 64:
             print(f'  {image_path}')
         features.append({'id':str(i), 'path':str(image_path), 'feature_vector':binary_array.tolist()})

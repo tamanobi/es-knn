@@ -12,8 +12,6 @@ import requests
 import sys
 from util import iter_docs
 
-
-
 if __name__ == "__main__":
     features_src = os.getenv('FEATURE_DIR', './features')
 
@@ -22,7 +20,7 @@ if __name__ == "__main__":
                     help="Directory containing image feature docs.")
     ap.add_argument("--es_hosts", default="http://127.0.0.1:9200",
                     help="Comma-separated elasticsearch host URLs.")
-    ap.add_argument("-b", "--batch_size", type=int, default=10,
+    ap.add_argument("-b", "--batch_size", type=int, default=1000,
                     help="Batch size for elasticsearch indexing.")
     args = vars(ap.parse_args())
 

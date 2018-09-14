@@ -23,6 +23,9 @@ def bool_to_float(v):
         return 0.0
 
 def get_feature(img:Image) -> numpy.ndarray:
+    return get_futures_color_hist(img)
+
+def get_feature_phash(img:Image) -> numpy.ndarray:
     h = imagehash.phash(img)
     return numpy.vectorize(bool_to_float)(h.hash.flatten())
 
@@ -46,15 +49,16 @@ def merge(r, g, b) -> numpy.ndarray:
     result[:,:,2] = b
     return result
 
-def get_feature_hist(inumpyut_image: Image) -> numpy.ndarray:
+def get_futures_color_hist(input_image: Image) -> numpy.ndarray:
     """not using pillow"""
-    image = numpy.asarray(inumpyut_image)
+    input_image = input_image.quantize(64, method=2, kmeans=3).convert('RGB')
+    image = numpy.asarray(input_image)
     image.flags.writeable = True
     r, g, b = split(image)
 
-    r = decreaseColor(r)
-    b = decreaseColor(b)
-    g = decreaseColor(g)
+    # r = decreaseColor(r)
+    # b = decreaseColor(b)
+    # g = decreaseColor(g)
 
     h = toColorNumber(r, g, b)
     return histogram(h, nbins=64)[0].astype(numpy.float32) / (image.shape[0] * image.shape[1])

@@ -5,12 +5,12 @@ from PIL import Image
 from argparse import ArgumentParser
 from itertools import cycle
 import requests
-from util import get_feature, get_feature_hist
+from util import get_feature
 
 ESHOSTS=cycle(['http://127.0.0.1:9200'])
 
 def search_images(es_index, es_type, es_id='search0000'):
-    req = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/{es_id}/_aknn_search?k1=500&k2=10')
+    req = requests.get(f'{next(ESHOSTS)}/{es_index}/{es_type}/{es_id}/_aknn_search?k1=1000&k2=10')
     hits = req.json()["hits"]["hits"]
     took_ms = req.json()["took"]
     query_img, neighbor_imgs = hits[0], hits[1:]
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     input_image_path = Path(args['input_image_path'])
     img = Image.open(str(input_image_path))
     print(input_image_path)
-    feature = get_feature_hist(img)
+    feature = get_feature(img)
 
     search_id = 'search0000'
     aknn_doc = {
